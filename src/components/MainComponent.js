@@ -23,6 +23,7 @@ class Main extends Component {
     });
   }
 
+  //return corresponding view for this component
   render() {
     return (
       <div>
