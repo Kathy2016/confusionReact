@@ -6,6 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 class App extends Component {
 
   render() {
+    //a router component can only have one child element.
     return (
       <BrowserRouter>
         <div>
