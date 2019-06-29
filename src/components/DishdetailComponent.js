@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { Card, CardImg, CardText, CardBody, CardTitle, Breadcrumb, BreadcrumbItem, Button, 
-        Row, Col, Modal, ModalHeader, ModalBody, Label, FormGroup } from 'reactstrap';
+        Row, Col, Modal, ModalHeader, ModalBody, Label } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { Control, LocalForm, Errors} from 'react-redux-form';
 
-    const required = (val) => val && val.length;
+    // const required = (val) => val && val.length;
     const minLength = (len) => (val) => val && (val.length >= len);
     const maxLength = (len) => (val) => !(val) || (val.length <= len);
 
@@ -28,23 +28,21 @@ import { Control, LocalForm, Errors} from 'react-redux-form';
         }
 
         handleSubmit(values){
+            this.toggleModal();
             console.log(`Cuurent state is: ${JSON.stringify(values)}`);
-            alert(`Cuurent state is: ${JSON.stringify(values)}`);
+            this.props.addComment(this.props.dishId, values.rating, values.author, values.comment);
         }
 
         render(){
             return(
-                <>
-                    <Row className="form-group">
-                    <Col md={{size: 10}}>
-                        <Button outline className="sencondary" type="submit" onClick={this.toggleModal} ><span className="fa fa-pencil"></span> Submit Comment</Button>
-                    </Col>
-                    </Row>
+                <> 
+                    <Button outline className="sencondary" type="submit" onClick={this.toggleModal} ><span className="fa fa-pencil"></span> Submit Comment</Button>
                     <Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
                         <ModalHeader toggle={this.toggleModal} >Submit Comment</ModalHeader>
                         <ModalBody>
                             <LocalForm onSubmit={(values) => this.handleSubmit(values)}>
-                                <FormGroup >
+                                <Row className="form-group" >
+                                    <Col>
                                     <Label htmlFor="rating">Rating</Label>
                                     <Control.select model=".rating" id="rating" name="rating" className="form-control">
                                         <option>1</option>
@@ -53,33 +51,35 @@ import { Control, LocalForm, Errors} from 'react-redux-form';
                                         <option>4</option>
                                         <option>5</option>
                                     </Control.select>
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label htmlFor="author">Your Name</Label>
-                                    <Control.text model=".author" id="author" name="author" placeholder="Your Name" 
-                                    className="form-control"
-                                    validators={{
-                                        required, minLength: minLength(3), maxLength: maxLength(15)
-                                    }} 
-                                    />
+                                    </Col> 
+                                </Row>
+                                <Row className="form-group" >
+                                    <Col>
+                                        <Label htmlFor="author">Your Name</Label>
+                                        <Control.text model=".author" id="author" name="author" placeholder="Your Name" 
+                                        className="form-control"
+                                        validators={{
+                                        minLength: minLength(3), maxLength: maxLength(15)
+                                        }} 
+                                        />
+                                    </Col>
                                     <Errors
                                         className="text-danger"
                                         model=".author"
                                         show="touched"
                                         messages ={{
-                                            required: "Required",
                                             minLength: "Must be greater than 2 characters",
                                             maxLength: "Must be 15 characters or less"
                                         }} 
                                     />
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label htmlFor="comment">Comment</Label>
-                                    <Control.textarea model=".comment" row="6" id="comment" name="comment" className="form-control" />
-                                </FormGroup>
-                                <FormGroup>
-                                    <Button type="submit" color="primary">Submit</Button>
-                                </FormGroup>
+                                </Row>
+                                <Row className="form-group" >
+                                    <Col>
+                                        <Label htmlFor="comment">Comment</Label>
+                                        <Control.textarea model=".comment" rows="6" id="comment" name="comment" className="form-control" />
+                                    </Col>
+                                </Row>      
+                                <Button type="submit" className="bg-primary">Submit</Button> 
                             </LocalForm>
                         </ModalBody>
                     </Modal>
@@ -102,7 +102,7 @@ import { Control, LocalForm, Errors} from 'react-redux-form';
         );
     }
 
-    function RenderComments({comments}){
+    function RenderComments({comments, addComment, dishId}){
         if(comments != null){
             const Comments = comments.map((comment) =>{
                 return (
@@ -119,7 +119,7 @@ import { Control, LocalForm, Errors} from 'react-redux-form';
                     <ul className="list-unstyled">
                         {Comments}
                     </ul>
-                    <CommentForm />
+                    <CommentForm dishId={dishId} addComment={addComment} />
                 </div>
             );
         }
@@ -146,7 +146,9 @@ import { Control, LocalForm, Errors} from 'react-redux-form';
                     </div>
                     <div className="row">
                         <RenderDish dish={props.dish} />
-                        <RenderComments comments={props.comments} />
+                        <RenderComments comments={props.comments}
+                            addComment={props.addComment}
+                            dishId={props.dish.id} />
                     </div>
                 </div>         
             );
