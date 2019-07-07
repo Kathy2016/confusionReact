@@ -12,11 +12,27 @@ export const addComment = (dishId, rating, author, comment) => ({
 });
 
 export const fetchDishes = () => (dispatch) => {
-    dispatch(dishesLoading(true));
 
+    dispatch(dishesLoading(true));
+   
     return fetch(baseUrl + 'dishes')
-        .then(response => response.json())
-        .then(dishes => dispatch(addDishes(dishes)));
+    .then(response => {
+        if (response.ok) {
+          return response;
+        } else {
+          var error = new Error('Error ' + response.status + ': ' + response.statusText);
+          error.response = response;
+          throw error;
+        }
+      },
+      //situations where the server dosen't resopnd
+      error => {
+            var errmess = new Error(error.message);
+            throw errmess;
+      })
+    .then(response => response.json())
+    .then(dishes => dispatch(addDishes(dishes)))
+    .catch(error => dispatch(dishesFailed(error.message)));
 }
 
 // this is going to inform somebody saying that the dishes are beginning to be loaded and so you need to wait for the dishes to be loaded.
@@ -34,12 +50,25 @@ export const addDishes = (dishes) => ({
     payload: dishes
 });
 
-export const fetchComments = () => (dispatch) => {
-
+export const fetchComments = () => (dispatch) => {    
     return fetch(baseUrl + 'comments')
-        .then(response => response.json())
-        .then(comments => dispatch(addComments(comments)));
-}
+    .then(response => {
+        if (response.ok) {
+          return response;
+        } else {
+          var error = new Error('Error ' + response.status + ': ' + response.statusText);
+          error.response = response;
+          throw error;
+        }
+      },
+      error => {
+            var errmess = new Error(error.message);
+            throw errmess;
+      })
+    .then(response => response.json())
+    .then(comments => dispatch(addComments(comments)))
+    .catch(error => dispatch(commentsFailed(error.message)));
+};
 
 export const commentsFailed = (errmess) => ({
     type: ActionTypes.COMMENTS_FAILED,
@@ -52,12 +81,28 @@ export const addComments = (comments) => ({
 });
 
 export const fetchPromos = () => (dispatch) => {
-    dispatch(promosLoading(true));
+    dispatch(promosLoading());
 
     return fetch(baseUrl + 'promotions')
+        .then(response => {
+            if(response.ok){
+                return response;
+            }
+            else{
+                var error = new Error('Error' + response.status + ': ' + response.statusText);
+                error.response = response;
+                throw error;
+            }
+        },
+        //situations where the server dosen't resopnd
+        error => {
+            var errmess = new Error(error.message);
+            throw errmess;
+        })
         .then(response => response.json())
-        .then(promos => dispatch(addPromos(promos)));
-}
+        .then(promos => dispatch(addPromos(promos)))
+        .catch(error => dispatch(promosFailed(error.message)));
+};
 
 export const promosLoading = () => ({
     type: ActionTypes.PROMOS_LOADING
